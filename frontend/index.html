@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Inflation Rate Predictor</title>
+    
+    <!-- Google Fonts: Outfit (headings) and Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for visualization dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="glass-bg-elements">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="brand">
+                <i class="fa-solid fa-chart-line-up logo-icon"></i>
+                <div>
+                    <h1>Personal Inflation Rate Predictor</h1>
+                    <p class="subtitle">Calculate your real cost of living based on your unique spending habits</p>
+                </div>
+            </div>
+            <div id="backend-status" class="status-badge status-checking">
+                <span class="status-dot"></span>
+                <span class="status-text">Checking Backend Connection...</span>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Step Wizard Container -->
+            <section id="wizard-section" class="card glass-card">
+                <!-- Wizard Navigation Indicators -->
+                <div class="wizard-steps">
+                    <div class="step-indicator active" id="indicator-step-1">
+                        <div class="step-num">1</div>
+                        <div class="step-label">Profile</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-indicator" id="indicator-step-2">
+                        <div class="step-num">2</div>
+                        <div class="step-label">Fixed Costs</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-indicator" id="indicator-step-3">
+                        <div class="step-num">3</div>
+                        <div class="step-label">Lifestyle & Savings</div>
+                    </div>
+                </div>
+
+                <form id="inflation-form" novalidate>
+                    <!-- STEP 1: DEMOGRAPHICS & PROFILE -->
+                    <div class="form-step active" id="form-step-1">
+                        <div class="step-header">
+                            <h2><i class="fa-solid fa-user-gear"></i> Demographics & Savings Goal</h2>
+                            <p>Tell us about your household and financial objectives.</p>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="input-income"><i class="fa-solid fa-wallet"></i> Monthly Net Income ($)</label>
+                                <input type="number" id="input-income" name="Income" min="0" placeholder="e.g. 5000" required>
+                                <span class="error-msg" id="err-income">Please enter a valid income</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-age"><i class="fa-solid fa-cake-candles"></i> Age</label>
+                                <input type="number" id="input-age" name="Age" min="18" max="120" placeholder="e.g. 30" required>
+                                <span class="error-msg" id="err-age">Please enter age between 18 and 120</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-dependents"><i class="fa-solid fa-users"></i> Dependents</label>
+                                <input type="number" id="input-dependents" name="Dependents" min="0" placeholder="e.g. 1" required>
+                                <span class="error-msg" id="err-dependents">Please enter number of dependents</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-desired-savings"><i class="fa-solid fa-piggy-bank"></i> Desired Savings Goal (%)</label>
+                                <div class="slider-container">
+                                    <input type="range" id="input-desired-savings" name="Desired_Savings_Percentage" min="0" max="100" value="20">
+                                    <span class="slider-value" id="val-desired-savings">20%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-occupation"><i class="fa-solid fa-briefcase"></i> Occupation</label>
+                                <select id="input-occupation" name="Occupation" required>
+                                    <option value="" disabled selected>Select occupation...</option>
+                                    <option value="Professional">Salaried Employee/Professional</option>
+                                    <option value="Self_Employed">Self-Employed / Business Owner</option>
+                                    <option value="Student">Student</option>
+                                    <option value="Retired">Retired</option>
+                                </select>
+                                <span class="error-msg" id="err-occupation">Please select your occupation</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-city-tier"><i class="fa-solid fa-city"></i> City Tier</label>
+                                <select id="input-city-tier" name="City_Tier" required>
+                                    <option value="" disabled selected>Select city tier...</option>
+                                    <option value="Tier_1">Tier 1 (Major Metros / Expensive)</option>
+                                    <option value="Tier_2">Tier 2 (Large Cities / Mid Cost)</option>
+                                    <option value="Tier_3">Tier 3 (Towns & Rural / Low Cost)</option>
+                                </select>
+                                <span class="error-msg" id="err-city-tier">Please select your city tier</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: FIXED MONTHLY COSTS -->
+                    <div class="form-step" id="form-step-2">
+                        <div class="step-header">
+                            <h2><i class="fa-solid fa-house-lock"></i> Fixed Monthly Expenses</h2>
+                            <p>Enter your non-discretionary commitments. These are typically harder to reduce.</p>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="input-rent"><i class="fa-solid fa-house"></i> Rent / Mortgage ($)</label>
+                                <input type="number" id="input-rent" name="Rent" min="0" placeholder="0" required>
+                                <span class="error-msg" id="err-rent">Please enter a valid amount</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-loan"><i class="fa-solid fa-credit-card"></i> Loan / EMI Repayments ($)</label>
+                                <input type="number" id="input-loan" name="Loan_Repayment" min="0" placeholder="0" required>
+                                <span class="error-msg" id="err-loan">Please enter a valid amount</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-insurance"><i class="fa-solid fa-shield-halved"></i> Insurance Premium ($)</label>
+                                <input type="number" id="input-insurance" name="Insurance" min="0" placeholder="0" required>
+                                <span class="error-msg" id="err-insurance">Please enter a valid amount</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="input-utilities"><i class="fa-solid fa-bolt"></i> Utilities (Power, Water, Net) ($)</label>
+                                <input type="number" id="input-utilities" name="Utilities" min="0" placeholder="0" required>
+                                <span class="error-msg" id="err-utilities">Please enter a valid amount</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: LIFESTYLE EXPENSES & POTENTIAL SAVINGS -->
+                    <div class="form-step" id="form-step-3">
+                        <div class="step-header">
+                            <h2><i class="fa-solid fa-cart-shopping"></i> Lifestyle Expenses & Savings Potential</h2>
+                            <p>For each item, specify your current monthly spending and how much you could realistically cut back (potential savings).</p>
+                        </div>
+                        
+                        <div class="lifestyle-layout">
+                            <!-- Category Row: Groceries -->
+                            <div class="lifestyle-card">
+                                <div class="category-info">
+                                    <div class="category-icon-wrapper"><i class="fa-solid fa-basket-shopping"></i></div>
+                                    <div>
+                                        <h3>Groceries</h3>
+                                        <p class="category-meta-info">High Inflation (7.2%)</p>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-inputs">
+                                    <div class="form-group-inline">
+                                        <label for="input-groceries">Current ($)</label>
+                                        <input type="number" id="input-groceries" name="Groceries" min="0" placeholder="0" required>
+                                    </div>
+                                    <div class="form-group-inline">
+                                        <label for="slider-savings-groceries">Potential Savings ($)</label>
+                                        <div class="slider-container-inline">
+                                            <input type="range" id="slider-savings-groceries" name="Potential_Savings_Groceries" min="0" max="0" value="0">
+                                            <span class="inline-val" id="val-savings-groceries">$0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Row: Transport -->
+                            <div class="lifestyle-card">
+                                <div class="category-info">
+                                    <div class="category-icon-wrapper"><i class="fa-solid fa-car"></i></div>
+                                    <div>
+                                        <h3>Transport & Fuel</h3>
+                                        <p class="category-meta-info">Medium Inflation (5.4%)</p>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-inputs">
+                                    <div class="form-group-inline">
+                                        <label for="input-transport">Current ($)</label>
+                                        <input type="number" id="input-transport" name="Transport" min="0" placeholder="0" required>
+                                    </div>
+                                    <div class="form-group-inline">
+                                        <label for="slider-savings-transport">Potential Savings ($)</label>
+                                        <div class="slider-container-inline">
+                                            <input type="range" id="slider-savings-transport" name="Potential_Savings_Transport" min="0" max="0" value="0">
+                                            <span class="inline-val" id="val-savings-transport">$0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Row: Eating Out -->
+                            <div class="lifestyle-card">
+                                <div class="category-info">
+                                    <div class="category-icon-wrapper"><i class="fa-solid fa-utensils"></i></div>
+                                    <div>
+                                        <h3>Eating Out & Delivery</h3>
+                                        <p class="category-meta-info">Moderate Inflation (4.8%)</p>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-inputs">
+                                    <div class="form-group-inline">
+                                        <label for="input-eating-out">Current ($)</label>
+                                        <input type="number" id="input-eating-out" name="Eating_Out" min="0" placeholder="0" required>
+                                    </div>
+                                    <div class="form-group-inline">
+                                        <label for="slider-savings-eating-out">Potential Savings ($)</label>
+                                        <div class="slider-container-inline">
+                                            <input type="range" id="slider-savings-eating-out" name="Potential_Savings_Eating_Out" min="0" max="0" value="0">
+                                            <span class="inline-val" id="val-savings-eating-out">$0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Row: Entertainment -->
+                            <div class="lifestyle-card">
+                                <div class="category-info">
+                                    <div class="category-icon-wrapper"><i class="fa-solid fa-gamepad"></i></div>
+                                    <div>
+                                        <h3>Entertainment & Hobby</h3>
+                                        <p class="category-meta-info">Moderate Inflation (4.5%)</p>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-inputs">
+                                    <div class="form-group-inline">
+                                        <label for="input-entertainment">Current ($)</label>
+                                        <input type="number" id="input-entertainment" name="Entertainment" min="0" placeholder="0" required>
+                                    </div>
+                                    <div class="form-group-inline">
+                                        <label for="slider-savings-entertainment">Potential Savings ($)</label>
+                                        <div class="slider-container-inline">
+                                            <input type="range" id="slider-savings-entertainment" name="Potential_Savings_Entertainment" min="0" max="0" value="0">
+                                            <span class="inline-val" id="val-savings-entertainment">$0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Row: Healthcare -->
+                            <div class="lifestyle-card">
+                                <div class="category-info">
+                                    <div class="category-icon-wrapper"><i class="fa-solid fa-heart-pulse"></i></div>
+                                    <div>
+                                        <h3>Healthcare & Medical</h3>
+                                        <p class="category-meta-info">High Inflation (7.8%)</p>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-inputs">
+                                    <div class="form-group-inline">
+                                        <label for="input-healthcare">Current ($)</label>
+                                        <input type="number" id="input-healthcare" name="Healthcare" min="0" placeholder="0" required>
+                                    </div>
+                                    <div class="form-group-inline">
+                                        <label for="slider-savings-healthcare">Potential Savings ($)</label>
+                                        <div class="slider-container-inline">
+                                            <input type="range" id="slider-savings-healthcare" name="Potential_Savings_Healthcare" min="0" max="0" value="0">
+                                            <span class="inline-val" id="val-savings-healthcare">$0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Row: Education -->
+                            <div class="lifestyle-card">
+                                <div class="category-info">
+                                    <div class="category-icon-wrapper"><i class="fa-solid fa-graduation-cap"></i></div>
+                                    <div>
+                                        <h3>Education & Courses</h3>
+                                        <p class="category-meta-info">Very High Inflation (8.2%)</p>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-inputs">
+                                    <div class="form-group-inline">
+                                        <label for="input-education">Current ($)</label>
+                                        <input type="number" id="input-education" name="Education" min="0" placeholder="0" required>
+                                    </div>
+                                    <div class="form-group-inline">
+                                        <label for="slider-savings-education">Potential Savings ($)</label>
+                                        <div class="slider-container-inline">
+                                            <input type="range" id="slider-savings-education" name="Potential_Savings_Education" min="0" max="0" value="0">
+                                            <span class="inline-val" id="val-savings-education">$0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Button Navigation Group -->
+                    <div class="form-navigation">
+                        <button type="button" id="btn-prev" class="btn btn-secondary disabled" disabled>
+                            <i class="fa-solid fa-arrow-left"></i> Back
+                        </button>
+                        <button type="button" id="btn-next" class="btn btn-primary">
+                            Next <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <button type="submit" id="btn-submit" class="btn btn-predict hide">
+                            <span class="btn-text">Predict Inflation</span>
+                            <i class="fa-solid fa-bolt-lightning btn-icon"></i>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Loading Overlay -->
+            <div id="loading-overlay" class="loading-overlay hide">
+                <div class="spinner-container">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Analyzing your financial profile...</p>
+                    <p class="loading-subtext">Executing ML Inflation Prediction Models</p>
+                </div>
+            </div>
+
+            <!-- RESULTS DASHBOARD (Initially Hidden) -->
+            <section id="dashboard-section" class="dashboard-grid hide">
+                <!-- Gauge Card -->
+                <div class="card glass-card dashboard-card result-gauge-card">
+                    <h2>Predicted Inflation</h2>
+                    <div class="gauge-outer">
+                        <div class="gauge-body">
+                            <div class="gauge-fill" id="gauge-fill-deg"></div>
+                            <div class="gauge-cover">
+                                <span id="gauge-value">0.0%</span>
+                                <span class="gauge-label">Personal Inflation</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-stats">
+                        <div class="stat-row">
+                            <span class="stat-lbl"><i class="fa-solid fa-globe icon-cyan"></i> National Baseline:</span>
+                            <span class="stat-val" id="val-national-inflation">0.0%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-lbl"><i class="fa-solid fa-sparkles icon-purple"></i> Optimized Inflation:</span>
+                            <span class="stat-val text-gradient" id="val-adjusted-inflation">0.0%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-lbl"><i class="fa-solid fa-piggy-bank icon-green"></i> Monthly Deflation Savings:</span>
+                            <span class="stat-val icon-green" id="val-deflation-savings">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Breakdown Chart -->
+                <div class="card glass-card dashboard-card budget-chart-card">
+                    <h2><i class="fa-solid fa-chart-pie"></i> Spending Breakdown</h2>
+                    <p class="chart-helper">Visual distribution of your monthly outgoings</p>
+                    <div class="chart-container">
+                        <canvas id="budgetBreakdownChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Erosion Chart over Time -->
+                <div class="card glass-card dashboard-card timeline-chart-card">
+                    <h2><i class="fa-solid fa-timeline"></i> 10-Year Purchasing Power Erosion</h2>
+                    <p class="chart-helper">How inflation eats away at the value of a fixed $10,000 cash balance</p>
+                    <div class="chart-container">
+                        <canvas id="purchasingPowerChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recommendations / Action Plan -->
+                <div class="card glass-card dashboard-card recommendations-card">
+                    <h2><i class="fa-solid fa-lightbulb-on text-gradient-gold"></i> AI Financial Recommendation Engine</h2>
+                    <div class="recs-list" id="recommendations-container">
+                        <!-- Recommendation items will be appended here -->
+                    </div>
+                </div>
+
+                <!-- Recalculate Button Center Bar -->
+                <div class="action-bar">
+                    <button type="button" id="btn-recalculate" class="btn btn-secondary">
+                        <i class="fa-solid fa-rotate-left"></i> Edit Inputs & Recalculate
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; 2026 Personal Inflation Rate Predictor. Powered by FastAPI & Machine Learning Heuristics.</p>
+        </footer>
+    </div>
+
+    <!-- Script references -->
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
