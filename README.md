@@ -3,7 +3,10 @@
 An end-to-end Machine Learning web application that predicts a user's personalized inflation exposure index based on demographic and lifestyle spending profiles. The system leverages an optimized XGBoost Regressor coupled with SHAP (SHapley Additive exPlanations) to dynamically isolate and map individual risk-vulnerability segments back to a responsive frontend visualization dashboard.
 
 ---
+## Live Demo 
 
+https://personal-inflation-pressure-predictor.onrender.com/ui/
+ ---
 ## 🚀 Key Engineering Architectural Highlights
 * **Feature Proportion Engineering:** Mitigated system-wide data leakage by refactoring raw fiscal currency inputs into Income-Proportion Ratios, improving true model generalization.
 * **Explainable AI Pipeline:** Integrated a tree-based SHAP explainability kernel directly inside a FastAPI production serving script to provide deterministic, real-time feature attribution scores.
