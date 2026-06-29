@@ -15,7 +15,6 @@ import shap
 # APP SETUP
 # ---------------------------
 app = FastAPI(title="Inflation Predictor API")
-app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -224,3 +223,5 @@ def predict(request: InflationPredictionRequest):
         "recommendations": recs,
         "is_mock_model": False
     }
+
+app.mount("/ui", StaticFiles(directory="../frontend", html=True), name="frontend")
