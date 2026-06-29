@@ -5,6 +5,8 @@ import numpy as np
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
 from pydantic import BaseModel, Field
 
 import shap
@@ -13,6 +15,7 @@ import shap
 # APP SETUP
 # ---------------------------
 app = FastAPI(title="Inflation Predictor API")
+app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -74,6 +77,10 @@ def safe_sum(d, keys):
 # ---------------------------
 # PREDICT ENDPOINT
 # ---------------------------
+@app.get("/")
+def home():
+    return {"status": "API is running"}
+
 @app.get("/health")
 def health():
     return {
